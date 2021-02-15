@@ -32,7 +32,7 @@ rm(dates,terms,dates2,repeat_names)
 # Function to retrieve content from Google News API
 get_news_api_all <- function(api_query, date_from, date_to){
   df <- get_everything_all(query = api_query, 
-                           api_key = "73c56d1c919347c490019bfee8bb3cd9",
+                           api_key = "XXXX",
                            from = date_from,
                            to = date_to)
   df <- df[["results_df"]] %>%

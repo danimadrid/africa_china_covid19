@@ -45,7 +45,7 @@ df.covid <- pmap(list(search_terms$term[1:75],
                       search_terms$end_date[1:75]), 
                        get_news_api_all) %>%
   bind_rows()
-fwrite(file = "COVID_NewsAPI01.csv", x = df.covid)
+fwrite(file = "data_files/COVID_NewsAPI01.csv", x = df.covid)
 rm(df.covid)
 
 df.covid <- pmap(list(search_terms$term[76:150], 
@@ -53,7 +53,7 @@ df.covid <- pmap(list(search_terms$term[76:150],
                       search_terms$end_date[76:150]), 
                  get_news_api_all) %>%
   bind_rows()
-fwrite(file = "COVID_NewsAPI02.csv", x = df.covid)
+fwrite(file = "data_files/COVID_NewsAPI02.csv", x = df.covid)
 rm(df.covid)
 
 df.covid <- pmap(list(search_terms$term[151:228], 
@@ -61,5 +61,5 @@ df.covid <- pmap(list(search_terms$term[151:228],
                       search_terms$end_date[151:228]), 
                  get_news_api_all) %>%
   bind_rows()
-fwrite(file = "COVID_NewsAPI03.csv", x = df.covid)
+fwrite(file = "data_files/COVID_NewsAPI03.csv", x = df.covid)
 rm(df.covid)

@@ -8,15 +8,16 @@ This repository includes materials (processed data and code) used for the analys
 <br>
 <strong>Content</strong><br>
 <p>This repository includes the following scripts:</p>
-<ol>
+<ul>
   <li>1_NewsAPI.R: used to extract data from the News API service [text data not included] </li>
   <li>2_NexisParser.R: used to process content from the Nexis Uni database for analysis [text data not included]</li>  
   <li>3_GDELT.R: used to extract URLs from the GDELT database and to scrape the content of news items</li>
-  <li>merging_cleaning.R: used to combine, clean and pre-process data from the three sources.</li>
-  <li>analysis.R: used to analyse the data and organised by research question (RQ1 to RQ4).</li>
-  <li>OnlineAppendices.R: used to create the data summaries presented in the Online Appendices.</li>
-</ol>
+  <li>4_ReutersScraper.R: used to search for Reuters articles on Google (using serpAPI) and scraped news content</li>
+  <li>5_MergingCleaning.R: used to combine, clean and pre-process data from all sources</li>
+  <li>6_Analysis.R: used to analyse the data; the file sis organised by research question (RQ1 to RQ4)</li>
+  <li>7_OnlineAppendices.R: used to create the data summaries presented in the Online Appendices</li>
+</ul>
 <br>
 The data files used in this study are available at <a href="https://doi.org/10.18738/T8/FNYGHO" target="_blank">https://doi.org/10.18738/T8/FNYGHO</a>.<br>
 <br>
-Due to copyright restrictions, the original news articles cannot be shared and, therefore, only pre-processed data (i.e., document-feature matrices) are provided in the repository.
+Due to copyright restrictions, the original news articles cannot be shared and, therefore, only pre-processed data (i.e., document-feature matrices) and non-copyrighted data are provided in the repository.

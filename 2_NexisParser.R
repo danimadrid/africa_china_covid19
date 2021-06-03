@@ -212,49 +212,49 @@ list_of_files <- list.files("source_files/Nexis/FR_AFP_EN/", recursive = TRUE, f
 nexis.df <- future_map(list_of_files, safely(get_lexis_articles)) %>%
   map("result") %>%
   bind_rows()
-fwrite(nexis.df, "source_files/Nexis/FullData_AFP_EN.csv",quote = TRUE, sep = "|")
+fwrite(nexis.df, "data_files/Nexis/FullData_AFP_EN.csv",quote = TRUE, sep = "|")
 
 list_of_files <- list.files("source_files/Nexis/CN_GlobalTimes/", recursive = TRUE, full.names = TRUE)
 nexis.df <- future_map(list_of_files, safely(get_lexis_articles)) %>%
   map("result") %>%
   bind_rows()
-fwrite(nexis.df, "source_files/Nexis/FullData_GT_EN.csv",quote = TRUE, sep = "|")
+fwrite(nexis.df, "data_files/Nexis/FullData_GT_EN.csv",quote = TRUE, sep = "|")
 
 list_of_files <- list.files("source_files/Nexis/CN_PeoplesDailyEN/", recursive = TRUE, full.names = TRUE)
 nexis.df <- future_map(list_of_files, safely(get_lexis_articles)) %>%
   map("result") %>%
   bind_rows()
-fwrite(nexis.df, "source_files/Nexis/FullData_PD_EN.csv",quote = TRUE, sep = "|")
+fwrite(nexis.df, "data_files/Nexis/FullData_PD_EN.csv",quote = TRUE, sep = "|")
 
 list_of_files <- list.files("source_files/Nexis/CN_ChinaDaily/", recursive = TRUE, full.names = TRUE)
 nexis.df <- future_map(list_of_files, safely(get_lexis_articles)) %>%
   map("result") %>%
   bind_rows()
-fwrite(nexis.df, "source_files/Nexis/FullData_CD_EN.csv",quote = TRUE, sep = "|")
+fwrite(nexis.df, "data_files/Nexis/FullData_CD_EN.csv",quote = TRUE, sep = "|")
 
 list_of_files <- list.files("source_files/Nexis/CN_XinhuaEN/", recursive = TRUE, full.names = TRUE)
 nexis.df <- future_map(list_of_files, safely(get_lexis_articles)) %>%
   map("result") %>%
   bind_rows()
-fwrite(nexis.df, "source_files/Nexis/FullData_XH_EN.csv",quote = TRUE, sep = "|")
+fwrite(nexis.df, "data_files/Nexis/FullData_XH_EN.csv",quote = TRUE, sep = "|")
 
 list_of_files <- list.files("source_files/Nexis/AFR_MultipleEN/", recursive = TRUE, full.names = TRUE, pattern = "*.rtf")
 nexis.df <- future_map(list_of_files, safely(get_lexis_articles)) %>%
   map("result") %>%
   bind_rows()
-fwrite(nexis.df, "source_files/Nexis/FullData_AFR_EN1.csv",quote = TRUE, sep = "|")
+fwrite(nexis.df, "data_files/Nexis/FullData_AFR_EN1.csv",quote = TRUE, sep = "|")
 
 list_of_files <- list.files("source_files/Nexis/AFR_MultipleEN/", recursive = TRUE, full.names = TRUE, pattern = "*.docx")
 nexis.df <- future_map(list_of_files, safely(get_lexis_articles_docx)) %>%
   map("result") %>%
   bind_rows()
-fwrite(nexis.df, "source_files/Nexis/FullData_AFR_EN2.csv",quote = TRUE, sep = "|")
+fwrite(nexis.df, "data_files/Nexis/FullData_AFR_EN2.csv",quote = TRUE, sep = "|")
 
 list_of_files <- list.files("source_files/Nexis/US_AP_EN/", recursive = TRUE, full.names = TRUE, pattern = "*.txt")
 nexis.df <- future_map(list_of_files, safely(get_lexis_articles_txt), .progress = TRUE) %>%
   map("result") %>%
   bind_rows()
-fwrite(nexis.df, "source_files/Nexis/FullData_AP_EN.csv",quote = TRUE, sep = "|")
+fwrite(nexis.df, "data_files/Nexis/FullData_AP_EN.csv",quote = TRUE, sep = "|")
 
 
 
@@ -346,19 +346,19 @@ nexis.df2 <- future_map(list_of_files[12001:length(list_of_files)], safely(get_l
   map("result") %>%
   bind_rows()
 nexis.df <- rbind(nexis.df,nexis.df2)
-fwrite(nexis.df, "source_files/Nexis/FullData_AFP_FR.csv",quote = TRUE, sep = "|")
+fwrite(nexis.df, "data_files/Nexis/FullData_AFP_FR.csv",quote = TRUE, sep = "|")
 
 list_of_files <- list.files("source_files/Nexis/CN_XinhuaFR", recursive = TRUE, full.names = TRUE, pattern = ".txt")
 nexis.df <- future_map(list_of_files, safely(get_lexis_articles_fr), .progress = TRUE) %>%
   map("result") %>%
   bind_rows()
-fwrite(nexis.df, "source_files/Nexis/FullData_XH_FR.csv",quote = TRUE, sep = "|")
+fwrite(nexis.df, "data_files/Nexis/FullData_XH_FR.csv",quote = TRUE, sep = "|")
 
 list_of_files <- list.files("source_files/Nexis/CN_PeoplesDailyFR", recursive = TRUE, full.names = TRUE, pattern = ".txt")
 nexis.df <- future_map(list_of_files, safely(get_lexis_articles_fr), .progress = TRUE) %>%
   map("result") %>%
   bind_rows()
-fwrite(nexis.df, "source_files/Nexis/FullData_PD_FR.csv",quote = TRUE, sep = "|")
+fwrite(nexis.df, "data_files/Nexis/FullData_PD_FR.csv",quote = TRUE, sep = "|")
 
 list_of_files <- list.files("source_files/Nexis/AFR_MultipleFR", recursive = TRUE, full.names = TRUE, pattern = ".txt")
 nexis.df <- future_map(list_of_files[1:20000], safely(get_lexis_articles_fr), .progress = TRUE) %>%
@@ -368,7 +368,7 @@ nexis.df2 <- future_map(list_of_files[20001:length(list_of_files)], safely(get_l
   map("result") %>%
   bind_rows()
 nexis.df <- rbind(nexis.df,nexis.df2)
-fwrite(nexis.df, "source_files/Nexis/FullData_AFR_FR.csv",quote = TRUE, sep = "|")
+fwrite(nexis.df, "data_files/Nexis/FullData_AFR_FR.csv",quote = TRUE, sep = "|")
 
 rm(list_of_files,
    nexis.df,

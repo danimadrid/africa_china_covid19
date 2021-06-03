@@ -2,7 +2,8 @@ library(pacman)
 p_load(stringr,textreadr,dplyr,magrittr,tidyverse,lubridate,furrr,data.table)
 plan(multisession(workers = 10))
 
-###### Parse English Language Data ######
+###### Parse English language data manually downloaded from Nexis Uni ######
+
 get_lexis_articles <- function(filename){
   full_text <- read_rtf(filename)
   file.docx <- str_extract(filename, "(?<=Nexis/)(.*?)(?=/)")
@@ -257,7 +258,7 @@ fwrite(nexis.df, "Nexis/FullData_AP_EN.csv",quote = TRUE, sep = "|")
 
 
 
-###### Parse French Language Data  ######
+###### Parse French language data manually downloaded from Nexis Uni ######
 get_lexis_articles_fr <- function(filename){
   Sys.setlocale('LC_TIME', "fr_FR.UTF-8")
   full_text <- read_lines(filename, skip_empty_rows = TRUE)

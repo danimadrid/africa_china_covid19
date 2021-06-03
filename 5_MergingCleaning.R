@@ -3,9 +3,8 @@ p_load(data.table, reader, tidyverse, magrittr, furrr, future, ggplot2, hrbrthem
        RNewsflow, lubridate)
 
 ###### Load Reuters Scraped Data ######
-setwd("/Volumes/LaCieOrange/COVID19/GMAC/")
 
-df_r <- fread("Reuters_Scrape.csv") %>%
+df_r <- fread("data_files/Reuters_Scrape.csv") %>%
   tibble()
 
 df_r %<>%
@@ -25,10 +24,10 @@ df_r %<>%
          id,
          language_gdelt)
 
-###### Merge all GDELT data EN ######
+###### Merge all GDELT data in English ######
 
-# Load CSV files manually scraped
-scraped_gdelt_data <- list.files("/Volumes/LaCieOrange/COVID19/GMAC/", pattern = "fulltext") %>%
+# Load CSV files manually scraped 
+scraped_gdelt_data <- list.files("data_files/", pattern = "fulltext") %>%
   map(function(x){
     temp <- fread(x) %>%
       tibble() %>%
@@ -37,12 +36,12 @@ scraped_gdelt_data <- list.files("/Volumes/LaCieOrange/COVID19/GMAC/", pattern =
   bind_rows()
 
 # Load metadata for URLs from GDELT for screening and filtering
-af_gdelt <- fread("/Volumes/LaCieOrange/COVID19/GMAC/COVID_GDELT_AFROnly.csv")
-cn_gdelt <- fread("/Volumes/LaCieOrange/COVID19/GMAC/COVID_GDELT_CNOnly.csv") %>%
+af_gdelt <- fread("source_files/COVID_GDELT_AFROnly.csv")
+cn_gdelt <- fread("source_files/COVID_GDELT_CNOnly.csv") %>%
   tibble() %>%
   mutate(country_name = "China",
          country_iso = "CN")
-we_gdelt <- fread("/Volumes/LaCieOrange/COVID19/GMAC/COVID_GDELT_WestOnly.csv") %>%
+we_gdelt <- fread("source_files/COVID_GDELT_WestOnly.csv") %>%
   tibble %>%
   mutate(country_name = case_when(medium_name == "reuters.com" ~ "United Kingdom",
                                   medium_name == "apnews.com" ~ "United States",
@@ -60,7 +59,7 @@ full_gdelt <- rbind(af_gdelt,
                     cn_gdelt,
                     we_gdelt)
 
-# Select the best fit for text from 2 scraped options
+# Select the best fit for text from 2 scraped options [currently keeps the longest text of the two available]
 scraped_gdelt_data %<>%
   mutate(chars_web_text = nchar(web_text),
          chars_web_text2 = nchar(web_text2),
@@ -73,14 +72,14 @@ rm(full_gdelt,
    we_gdelt)
 
 # Load ALL GDELT links to extract date, and language
-gdelt1 <- fread("/Volumes/LaCieOrange/COVID19/GMAC/COVID_GDELT_Apr1.csv")
-gdelt2 <- fread("/Volumes/LaCieOrange/COVID19/GMAC/COVID_GDELT_Apr2.csv")
-gdelt3 <- fread("/Volumes/LaCieOrange/COVID19/GMAC/COVID_GDELT_Mar1.csv")
-gdelt4 <- fread("/Volumes/LaCieOrange/COVID19/GMAC/COVID_GDELT_Mar2.csv")
-gdelt5 <- fread("/Volumes/LaCieOrange/COVID19/GMAC/COVID_GDELT_May1.csv")
-gdelt6 <- fread("/Volumes/LaCieOrange/COVID19/GMAC/COVID_GDELT_May2.csv")
-gdelt7 <- fread("/Volumes/LaCieOrange/COVID19/GMAC/COVID_GDELT_May3.csv")
-gdelt8 <- fread("/Volumes/LaCieOrange/COVID19/GMAC/COVID_GDELT_DecJanFeb.csv")
+gdelt1 <- fread("source_files/COVID_GDELT_Apr1.csv")
+gdelt2 <- fread("source_files/COVID_GDELT_Apr2.csv")
+gdelt3 <- fread("source_files/COVID_GDELT_Mar1.csv")
+gdelt4 <- fread("source_files/COVID_GDELT_Mar2.csv")
+gdelt5 <- fread("source_files/COVID_GDELT_May1.csv")
+gdelt6 <- fread("source_files/COVID_GDELT_May2.csv")
+gdelt7 <- fread("source_files/COVID_GDELT_May3.csv")
+gdelt8 <- fread("source_files/COVID_GDELT_DecJanFeb.csv")
 
 gdelt <- rbind(gdelt1,gdelt2,gdelt3,gdelt4,
                gdelt5,gdelt6,gdelt7,gdelt8)
@@ -152,6 +151,7 @@ df_g %<>%
 list_languages <- df_g %>%
   group_by(language_gdelt) %>%
   count(language_gdelt)
+
 # Keeps French and English only
 df_g %<>%
   filter(language_gdelt == "" | language_gdelt == "srclc:fra;eng:Moses 2.1.1 / MosesCore Europarl fr-en / GT-FRA 1.0" | language_gdelt == "srclc:fra;eng:GT-FRA 1.0") %>%
@@ -165,22 +165,23 @@ rm(df_r,gdelt,list_languages)
 df_g %>%
   group_by(country_iso,source) %>%
   count(source) %>%
-  write.xlsx("list_all_sources_gdelt_EN.xlsx")
+  write.xlsx("data_files/list_all_sources_gdelt_EN.xlsx")
 
-###### Merge all Nexis ######
-n1 <- fread("/Volumes/LaCieOrange/COVID19/GMAC/Nexis/FullData_AFP_EN.csv") %>% mutate(pub.date = as.Date(pub.date))
-n2 <- fread("/Volumes/LaCieOrange/COVID19/GMAC/Nexis/FullData_AFR_EN1.csv") %>% mutate(pub.date = as.Date(pub.date))
-n3 <- fread("/Volumes/LaCieOrange/COVID19/GMAC/Nexis/FullData_AFR_EN2.csv") %>% mutate(pub.date = as.Date(pub.date))
-n4 <- fread("/Volumes/LaCieOrange/COVID19/GMAC/Nexis/FullData_CD_EN.csv") %>% mutate(pub.date = as.Date(pub.date))
-n5 <- fread("/Volumes/LaCieOrange/COVID19/GMAC/Nexis/FullData_GT_EN.csv") %>% mutate(pub.date = as.Date(pub.date))
-n6 <- fread("/Volumes/LaCieOrange/COVID19/GMAC/Nexis/FullData_PD_EN.csv") %>% mutate(pub.date = as.Date(pub.date))
-n7 <- fread("/Volumes/LaCieOrange/COVID19/GMAC/Nexis/FullData_XH_EN.csv") %>% mutate(pub.date = as.Date(pub.date))
-n8 <- fread("/Volumes/LaCieOrange/COVID19/GMAC/Nexis/FullData_AP_EN.csv") %>% mutate(pub.date = as.Date(pub.date))
+###### Merge all Nexis files in English and in French ###### 
+# [data cannot be provided due to copyright restrictions]
+n1 <- fread("data_files/Nexis/FullData_AFP_EN.csv") %>% mutate(pub.date = as.Date(pub.date))
+n2 <- fread("data_files/Nexis/FullData_AFR_EN1.csv") %>% mutate(pub.date = as.Date(pub.date))
+n3 <- fread("data_files/Nexis/FullData_AFR_EN2.csv") %>% mutate(pub.date = as.Date(pub.date))
+n4 <- fread("data_files/Nexis/FullData_CD_EN.csv") %>% mutate(pub.date = as.Date(pub.date))
+n5 <- fread("data_files/Nexis/FullData_GT_EN.csv") %>% mutate(pub.date = as.Date(pub.date))
+n6 <- fread("data_files/Nexis/FullData_PD_EN.csv") %>% mutate(pub.date = as.Date(pub.date))
+n7 <- fread("data_files/Nexis/FullData_XH_EN.csv") %>% mutate(pub.date = as.Date(pub.date))
+n8 <- fread("data_files/Nexis/FullData_AP_EN.csv") %>% mutate(pub.date = as.Date(pub.date))
 
-n9 <- fread("/Volumes/LaCieOrange/COVID19/GMAC/Nexis/FullData_AFR_FR.csv") %>% mutate(pub.date = as.Date(pub.date))
-n10 <- fread("/Volumes/LaCieOrange/COVID19/GMAC/Nexis/FullData_AFP_FR.csv") %>% mutate(pub.date = as.Date(pub.date))
-n11 <- fread("/Volumes/LaCieOrange/COVID19/GMAC/Nexis/FullData_PD_FR.csv") %>% mutate(pub.date = as.Date(pub.date))
-n12 <- fread("/Volumes/LaCieOrange/COVID19/GMAC/Nexis/FullData_XH_FR.csv") %>% mutate(pub.date = as.Date(pub.date))
+n9 <- fread("data_files/Nexis/FullData_AFR_FR.csv") %>% mutate(pub.date = as.Date(pub.date))
+n10 <- fread("data_files/Nexis/FullData_AFP_FR.csv") %>% mutate(pub.date = as.Date(pub.date))
+n11 <- fread("data_files/Nexis/FullData_PD_FR.csv") %>% mutate(pub.date = as.Date(pub.date))
+n12 <- fread("data_files/Nexis/FullData_XH_FR.csv") %>% mutate(pub.date = as.Date(pub.date))
 
 df_en <- rbind(n1,n2,n3,n4,n5,n6,n7,n8) %>%
   mutate(language_gdelt = "EN")
@@ -210,13 +211,15 @@ rm(df_en,df_fr)
 df_n %>%
   group_by(country_iso,source) %>%
   count(source) %>%
-  write.xlsx("list_all_sources_nexis.xlsx")
+  write.xlsx("data_files/list_all_sources_nexis.xlsx")
 
 ###### Homogenize names of sources and countries ######
+
 # Load list of processed sources and merge
 df_sources_nexis <- read_excel("list_all_sources_nexis_processed.xlsx")
 df_sources_gdelt <- read_excel("list_all_sources_gdelt_EN_processed.xlsx")
 
+# Merge text with human-validated metadata
 df_nexis <- df_n %>%
   full_join(df_sources_nexis, by = c("source")) %>%
   filter(is.keep == "T") %>%
@@ -249,27 +252,27 @@ rm(df_gdelt, df_nexis)
 
 ###### Add GDELT FR ######
 
-df_f1 <- fread("/Volumes/LaCieOrange/COVID19/GMAC/fulltextAFR_20200829195038.csv") %>% 
+df_f1 <- fread("data_files/fulltextAFR_20200829195038.csv") %>% 
   mutate(web_date = as.Date(web_date),
          web_date2 = str_squish(str_replace(web_date2, "[0-9]{2}:[0-9]{2}:[0-9]{2}","")),
          web_date2 = parse_date_time(web_date2, "%Y-%m-%d"))
-df_f2 <- fread("/Volumes/LaCieOrange/COVID19/GMAC/fulltextAFR_20200829214510.csv") %>% 
+df_f2 <- fread("data_files/fulltextAFR_20200829214510.csv") %>% 
   mutate(web_date = as.Date(web_date),
          web_date2 = str_squish(str_replace(web_date2, "[0-9]{2}:[0-9]{2}:[0-9]{2}","")),
          web_date2 = parse_date_time(web_date2, "%Y-%m-%d"))
-df_f3 <- fread("/Volumes/LaCieOrange/COVID19/GMAC/fulltextAFR_20200829234306.csv") %>% 
+df_f3 <- fread("data_files/fulltextAFR_20200829234306.csv") %>% 
   mutate(web_date = as.Date(web_date),
          web_date2 = str_squish(str_replace(web_date2, "[0-9]{2}:[0-9]{2}:[0-9]{2}","")),
          web_date2 = parse_date_time(web_date2, "%Y-%m-%d"))
-df_f4 <- fread("/Volumes/LaCieOrange/COVID19/GMAC/fulltextAFR_20200830013041.csv") %>% 
+df_f4 <- fread("data_files/fulltextAFR_20200830013041.csv") %>% 
   mutate(web_date = as.Date(web_date),
          web_date2 = str_squish(str_replace(web_date2, "[0-9]{2}:[0-9]{2}:[0-9]{2}","")),
          web_date2 = parse_date_time(web_date2, "%Y-%m-%d"))
-df_f5 <- fread("/Volumes/LaCieOrange/COVID19/GMAC/fulltextAFR_20200830031615.csv") %>% 
+df_f5 <- fread("data_files/fulltextAFR_20200830031615.csv") %>% 
   mutate(web_date = as.Date(web_date),
          web_date2 = str_squish(str_replace(web_date2, "[0-9]{2}:[0-9]{2}:[0-9]{2}","")),
          web_date2 = parse_date_time(web_date2, "%Y-%m-%d"))
-df_f6 <- fread("/Volumes/LaCieOrange/COVID19/GMAC/fulltextAFR_20200830122356.csv") %>% 
+df_f6 <- fread("data_files/fulltextAFR_20200830122356.csv") %>% 
   mutate(web_date = as.Date(web_date),
          web_date2 = str_squish(str_replace(web_date2, "[0-9]{2}:[0-9]{2}:[0-9]{2}","")),
          web_date2 = parse_date_time(web_date2, "%Y-%m-%d"))
@@ -278,7 +281,7 @@ scraped_gdelt_data <- rbind(df_f1,df_f2,df_f3,df_f4,df_f5,df_f6)
 rm(df_f1,df_f2,df_f3,df_f4,df_f5,df_f6)
 
 # Load metadata for URLs from GDELT for screening and filtering
-fr_gdelt <- fread("/Volumes/LaCieOrange/COVID19/GMAC/COVID_GDELT_AFROnly_FR.csv")
+fr_gdelt <- fread("source_files/COVID_GDELT_AFROnly_FR.csv")
 
 # Select the best fit for text from 2 scraped options
 scraped_gdelt_data %<>%
@@ -349,10 +352,11 @@ rm(df_g)
 df_fr %>%
   group_by(country_iso,source) %>%
   count(source) %>%
-  write.xlsx("list_all_sources_FR.xlsx")
+  write.xlsx("data_files/list_all_sources_FR.xlsx")
 
-df_sources_fr <- read_excel("list_all_sources_FR_processed.xlsx")
+df_sources_fr <- read_excel("data_files/list_all_sources_FR_processed.xlsx")
 
+# Merge text with human-validated metadata
 df_fr %<>%
   full_join(df_sources_fr, by = c("source", "country_iso")) %>%
   filter(new_source != "NA") %>%
@@ -377,6 +381,7 @@ df_fr %<>%
   filter(country_iso %in% countries)
 rm(countries)
 
+# Function to identify similar texts using jaccard score over 0.8 as threshold
 remove_save_delete <- function(name.source){
   df_id <- df_fr %>%
     filter(source == eval(name.source)) %>% 
@@ -422,7 +427,7 @@ final_df1 <- map(sources1$source[1:20],remove_save_delete)
 df_final1 <- final_df1 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final1, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_FR01.csv", quote = TRUE, sep = "|")
+fwrite(df_final1, "data_files/Analysis/Full_FR01.csv", quote = TRUE, sep = "|")
 rm(final_df1,
    df_final1)
 
@@ -430,7 +435,7 @@ final_df1 <- map(sources1$source[21:50],remove_save_delete)
 df_final1 <- final_df1 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final1, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_FR02.csv", quote = TRUE, sep = "|")
+fwrite(df_final1, "data_files/Analysis/Full_FR02.csv", quote = TRUE, sep = "|")
 rm(final_df1,
    df_final1)
 
@@ -438,7 +443,7 @@ final_df1 <- map(sources1$source[51:100],remove_save_delete)
 df_final1 <- final_df1 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final1, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_FR03.csv", quote = TRUE, sep = "|")
+fwrite(df_final1, "data_files/Analysis/Full_FR03.csv", quote = TRUE, sep = "|")
 rm(final_df1,
    df_final1)
 
@@ -446,7 +451,7 @@ final_df1 <- map(sources1$source[101:150],remove_save_delete)
 df_final1 <- final_df1 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final1, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_FR04.csv", quote = TRUE, sep = "|")
+fwrite(df_final1, "data_files/Analysis/Full_FR04.csv", quote = TRUE, sep = "|")
 rm(final_df1,
    df_final1)
 
@@ -454,7 +459,7 @@ final_df1 <- map(sources1$source[151:172],remove_save_delete)
 df_final1 <- final_df1 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final1, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_FR05.csv", quote = TRUE, sep = "|")
+fwrite(df_final1, "data_files/Analysis/Full_FR05.csv", quote = TRUE, sep = "|")
 rm(final_df1,
    df_final1,
    sources1,
@@ -518,7 +523,7 @@ final_df2 <- map(sources2$source[1:6],remove_save_delete_big)
 df_final2 <- final_df2 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final2, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_FR07.csv", quote = TRUE, sep = "|")
+fwrite(df_final2, "data_files/Analysis/Full_FR07.csv", quote = TRUE, sep = "|")
 rm(df_final2,
    final_df2)
 
@@ -526,7 +531,7 @@ final_df2 <- map(sources2$source[7:12],remove_save_delete_big)
 df_final2 <- final_df2 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final2, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_FR08.csv", quote = TRUE, sep = "|")
+fwrite(df_final2, "data_files/Analysis/Full_FR08.csv", quote = TRUE, sep = "|")
 rm(df_final2,
    final_df2)
 
@@ -534,7 +539,7 @@ final_df2 <- map(sources2$source[13:length(sources2$source)],remove_save_delete_
 df_final2 <- final_df2 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final2, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_FR09.csv", quote = TRUE, sep = "|")
+fwrite(df_final2, "data_files/Analysis/Full_FR09.csv", quote = TRUE, sep = "|")
 rm(df_final2,
    final_df2,
    remove_save_delete_big,
@@ -598,7 +603,7 @@ final_df3 <- map(sources3$source,remove_save_delete_very_big)
 df_final3 <- final_df3 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final3, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_FR10.csv", quote = TRUE, sep = "|")
+fwrite(df_final3, "data_files/Analysis/Full_FR10.csv", quote = TRUE, sep = "|")
 
 ###### Remove Duplicates EN ######
 
@@ -657,7 +662,7 @@ final_df1 <- map(sources1$source[1:20],remove_save_delete)
 df_final1 <- final_df1 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final1, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_EN01.csv", quote = TRUE, sep = "|")
+fwrite(df_final1, "data_files/Analysis/Full_EN01.csv", quote = TRUE, sep = "|")
 rm(final_df1,
    df_final1)
 
@@ -665,7 +670,7 @@ final_df1 <- map(sources1$source[21:50],remove_save_delete)
 df_final1 <- final_df1 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final1, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_EN02.csv", quote = TRUE, sep = "|")
+fwrite(df_final1, "data_files/Analysis/Full_EN02.csv", quote = TRUE, sep = "|")
 rm(final_df1,
    df_final1)
 
@@ -673,7 +678,7 @@ final_df1 <- map(sources1$source[51:100],remove_save_delete)
 df_final1 <- final_df1 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final1, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_EN03.csv", quote = TRUE, sep = "|")
+fwrite(df_final1, "data_files/Analysis/Full_EN03.csv", quote = TRUE, sep = "|")
 rm(final_df1,
    df_final1)
 
@@ -681,7 +686,7 @@ final_df1 <- map(sources1$source[101:150],remove_save_delete)
 df_final1 <- final_df1 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final1, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_EN04.csv", quote = TRUE, sep = "|")
+fwrite(df_final1, "data_files/Analysis/Full_EN04.csv", quote = TRUE, sep = "|")
 rm(final_df1,
    df_final1)
 
@@ -689,7 +694,7 @@ final_df1 <- map(sources1$source[151:200],remove_save_delete)
 df_final1 <- final_df1 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final1, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_EN05.csv", quote = TRUE, sep = "|")
+fwrite(df_final1, "data_files/Analysis/Full_EN05.csv", quote = TRUE, sep = "|")
 rm(final_df1,
    df_final1)
 
@@ -697,7 +702,7 @@ final_df1 <- map(sources1$source[201:289],remove_save_delete)
 df_final1 <- final_df1 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final1, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_EN06.csv", quote = TRUE, sep = "|")
+fwrite(df_final1, "data_files/Analysis/Full_EN06.csv", quote = TRUE, sep = "|")
 rm(sources1,
    final_df1,
    remove_save_delete, 
@@ -765,7 +770,7 @@ final_df2 <- map(sources2$source[1:2],remove_save_delete_big)
 df_final2 <- final_df2 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final2, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_EN07.csv", quote = TRUE, sep = "|")
+fwrite(df_final2, "data_files/nalysis/Full_EN07.csv", quote = TRUE, sep = "|")
 rm(df_final2,
    final_df2)
 
@@ -773,7 +778,7 @@ final_df2 <- map(sources2$source[3:10],remove_save_delete_big)
 df_final2 <- final_df2 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final2, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_EN08.csv", quote = TRUE, sep = "|")
+fwrite(df_final2, "data_files/Analysis/Full_EN08.csv", quote = TRUE, sep = "|")
 rm(df_final2,
    final_df2)
 
@@ -781,7 +786,7 @@ final_df2 <- map(sources2$source[11:20],remove_save_delete_big)
 df_final2 <- final_df2 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final2, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_EN10.csv", quote = TRUE, sep = "|")
+fwrite(df_final2, "data_files/Analysis/Full_EN10.csv", quote = TRUE, sep = "|")
 rm(df_final2,
    final_df2)
 
@@ -789,7 +794,7 @@ final_df2 <- map(sources2$source[21:30],remove_save_delete_big)
 df_final2 <- final_df2 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final2, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_EN11.csv", quote = TRUE, sep = "|")
+fwrite(df_final2, "data_files/Analysis/Full_EN11.csv", quote = TRUE, sep = "|")
 rm(df_final2,
    final_df2)
 
@@ -797,7 +802,7 @@ final_df2 <- map(sources2$source[31:nrow(sources2)],remove_save_delete_big)
 df_final2 <- final_df2 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final2, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_EN12.csv", quote = TRUE, sep = "|")
+fwrite(df_final2, "data_files/Analysis/Full_EN12.csv", quote = TRUE, sep = "|")
 rm(df_final2,
    final_df2,
    remove_save_delete_big,
@@ -863,11 +868,12 @@ final_df3 <- map(sources3$source,remove_save_delete_very_big)
 df_final3 <- final_df3 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final3, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_EN09.csv", quote = TRUE, sep = "|")
+fwrite(df_final3, "data_files/Analysis/Full_EN09.csv", quote = TRUE, sep = "|")
 
-###### Add GDELT Additional ######
+###### Add GDELT Additional News Based on Reviewers' Comments  ######
 
-df_gdelt_additional <- fread("/Volumes/LaCieOrange/COVID19/GMAC/GDELT_Additional_China.csv") %>%
+# Load original GDELT URLs to get language metadata
+df_gdelt_additional <- fread("source_files/GDELT_Additional_China.csv") %>%
   select(web_url = DocumentIdentifier,
          web_gdeltdate = GKGRECORDID,
          web_language = TranslationInfo,
@@ -877,7 +883,8 @@ df_gdelt_additional <- fread("/Volumes/LaCieOrange/COVID19/GMAC/GDELT_Additional
 df_gdelt_additional %<>% # Remove GDELT duplicates
   distinct(web_url, .keep_all = TRUE)
 
-df_add <- fread("/Volumes/LaCieOrange/COVID19/GMAC/COVID_GDELT_AboutChina.csv") %>% 
+# Load manually scraped GDELT data about China
+df_add <- fread("data_files/COVID_GDELT_AboutChina.csv") %>% 
   mutate(web_date = as.Date(web_date),
          web_date2 = str_squish(str_replace(web_date2, "[0-9]{2}:[0-9]{2}:[0-9]{2}","")),
          web_date2 = parse_date_time(web_date2, "%Y-%m-%d"))
@@ -963,7 +970,7 @@ df_add_FR <- df_add %>%
   filter(language_gdelt == "FR")
 rm(df_add)
 
-list_FR_sources <- read_excel("list_all_sources_FR_processed.xlsx") %>%
+list_FR_sources <- read_excel("data_files/list_all_sources_FR_processed.xlsx") %>%
   select(country_iso = new.country_iso,
          source = new_source)
 df_add_FR <- df_add_FR %>%
@@ -985,7 +992,7 @@ df_add_FR <- df_add_FR %>%
                                  TRUE ~ as.character(country_iso)))
 rm(list_FR_sources)
 
-list_EN_sources <- read_excel("list_all_sources_gdelt_EN_processed.xlsx") %>%
+list_EN_sources <- read_excel("data_files/list_all_sources_gdelt_EN_processed.xlsx") %>%
   select(country_iso = new.country_iso,
          source = new.source)
 
@@ -1069,7 +1076,7 @@ final_df1 <- map(sources1$source[1:20],remove_save_delete)
 df_final1 <- final_df1 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final1, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_AddFR01.csv", quote = TRUE, sep = "|")
+fwrite(df_final1, "data_files/Analysis/Full_AddFR01.csv", quote = TRUE, sep = "|")
 rm(final_df1,
    df_final1)
 
@@ -1077,7 +1084,7 @@ final_df1 <- map(sources1$source[21:50],remove_save_delete)
 df_final1 <- final_df1 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final1, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_AddFR02.csv", quote = TRUE, sep = "|")
+fwrite(df_final1, "data_files/Analysis/Full_AddFR02.csv", quote = TRUE, sep = "|")
 rm(final_df1,
    df_final1)
 
@@ -1085,7 +1092,7 @@ final_df1 <- map(sources1$source[51:100],remove_save_delete)
 df_final1 <- final_df1 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final1, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_AddFR03.csv", quote = TRUE, sep = "|")
+fwrite(df_final1, "data_files/Analysis/Full_AddFR03.csv", quote = TRUE, sep = "|")
 rm(final_df1,
    df_final1)
 
@@ -1093,7 +1100,7 @@ final_df1 <- map(sources1$source[101:111],remove_save_delete)
 df_final1 <- final_df1 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final1, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_AddFR04.csv", quote = TRUE, sep = "|")
+fwrite(df_final1, "data_files/Analysis/Full_AddFR04.csv", quote = TRUE, sep = "|")
 rm(final_df1,
    df_final1)
 
@@ -1156,7 +1163,7 @@ final_df1 <- map(sources1$source[1:20],remove_save_delete)
 df_final1 <- final_df1 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final1, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_AddEN01.csv", quote = TRUE, sep = "|")
+fwrite(df_final1, "data_files/Analysis/Full_AddEN01.csv", quote = TRUE, sep = "|")
 rm(final_df1,
    df_final1)
 
@@ -1164,7 +1171,7 @@ final_df1 <- map(sources1$source[21:50],remove_save_delete)
 df_final1 <- final_df1 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final1, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_AddEN02.csv", quote = TRUE, sep = "|")
+fwrite(df_final1, "data_files/Analysis/Full_AddEN02.csv", quote = TRUE, sep = "|")
 rm(final_df1,
    df_final1)
 
@@ -1172,7 +1179,7 @@ final_df1 <- map(sources1$source[51:100],remove_save_delete)
 df_final1 <- final_df1 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final1, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_AddEN03.csv", quote = TRUE, sep = "|")
+fwrite(df_final1, "data_files/Analysis/Full_AddEN03.csv", quote = TRUE, sep = "|")
 rm(final_df1,
    df_final1)
 
@@ -1180,7 +1187,7 @@ final_df1 <- map(sources1$source[101:150],remove_save_delete)
 df_final1 <- final_df1 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final1, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_AddEN04.csv", quote = TRUE, sep = "|")
+fwrite(df_final1, "data_files/Analysis/Full_AddEN04.csv", quote = TRUE, sep = "|")
 rm(final_df1,
    df_final1)
 
@@ -1188,7 +1195,7 @@ final_df1 <- map(sources1$source[151:200],remove_save_delete)
 df_final1 <- final_df1 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final1, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_AddEN05.csv", quote = TRUE, sep = "|")
+fwrite(df_final1, "data_files/Analysis/Full_AddEN05.csv", quote = TRUE, sep = "|")
 rm(final_df1,
    df_final1)
 
@@ -1196,7 +1203,7 @@ final_df1 <- map(sources1$source[201:236],remove_save_delete)
 df_final1 <- final_df1 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final1, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_AddEN06.csv", quote = TRUE, sep = "|")
+fwrite(df_final1, "data_files/Analysis/Full_AddEN06.csv", quote = TRUE, sep = "|")
 rm(sources1,
    final_df1,
    remove_save_delete, 
@@ -1260,7 +1267,7 @@ final_df2 <- map(sources2$source[1],remove_save_delete_big)
 df_final2 <- final_df2 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final2, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_AddEN07.csv", quote = TRUE, sep = "|")
+fwrite(df_final2, "data_files/Analysis/Full_AddEN07.csv", quote = TRUE, sep = "|")
 rm(df_final2,
    final_df2)
 
@@ -1323,13 +1330,13 @@ final_df3 <- map(sources3$source[1],remove_save_delete_very_big)
 df_final3 <- final_df3 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final3, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_AddEN08.csv", quote = TRUE, sep = "|")
+fwrite(df_final3, "data_files/Analysis/Full_AddEN08.csv", quote = TRUE, sep = "|")
 
 final_df3 <- map(sources3$source[2],remove_save_delete_very_big)
 df_final3 <- final_df3 %>%
   compact()%>%
   bind_rows()
-fwrite(df_final3, "/Volumes/LaCieOrange/COVID19/GMAC/Analysis/Full_AddEN09.csv", quote = TRUE, sep = "|")
+fwrite(df_final3, "data_files/Analysis/Full_AddEN09.csv", quote = TRUE, sep = "|")
 
 rm(df_add_EN,
    df_add_FR,
@@ -1342,58 +1349,3 @@ rm(df_add_EN,
    sources2,
    sources3)
 
-###### Basic Plots ######
-df %>%
-  mutate(publish_date = ymd(df$publish_date)) %>%
-  group_by(month = floor_date(publish_date, unit = "quarter")) %>%
-  count(month) %>%
-  filter(month >=as.Date("2010-01-01") & month <= as.Date("2020-08-15")) %>%
-  ggplot(aes(x=month, y=n)) + 
-  geom_bar(stat = "identity")
-
-df %>%
-  mutate(publish_date = ymd(df$publish_date)) %>%
-  group_by(month = floor_date(publish_date, unit = "quarter"),source.country) %>%
-  count(month) %>%
-  filter(month >=as.Date("2010-01-01") & month <= as.Date("2020-08-15")) %>%
-  ggplot(aes(x=month, y=n)) + 
-  geom_bar(stat = "identity") +
-  facet_wrap(~ source.country, scales = "free")
-
-df$covid <- str_count(df$full_text, "COVID|Covid|covid|coronavirus")
-
-df %<>%
-  mutate(publish_date = ymd(df$publish_date)) %>%
-  filter(publish_date >=as.Date("2010-01-01") & publish_date <= as.Date("2020-08-15"))
-
-df %>%
-  filter(covid > 0) %>%
-  group_by(source.country) %>%
-  count(source.country) %>%
-  ggplot(aes(x=source.country, y=n)) + 
-  geom_bar(stat = "identity")
-
-df %>%
-  filter(covid > 0 & source != "Reuters") %>%
-  group_by(source.country) %>%
-  count(source.country) %>%
-  ggplot(aes(x=source.country, y=n)) + 
-  geom_bar(stat = "identity")
-
-df %>%
-  filter(covid > 0) %>%
-  group_by(source.country) %>%
-  count(source.country) %>%
-  write.xlsx("Counts_mention_COVID_by_country.xlsx")
-
-df %>%
-  filter(covid > 0) %>%
-  group_by(source.country) %>%
-  count(source.country) %>%
-  write.xlsx("Counts_total_by_country.xlsx")
-
-df %>%
-  select(-title,
-         -full_text,
-         -web_url) %>%
-  fwrite("Metadata.csv")

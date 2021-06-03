@@ -1,6 +1,6 @@
 ## Replication materials for the paper "Who Set the Narrative? Assessing the Influence of Chinese Global Media on News Coverage of COVID-19 in 30 African Countries"
 <br>
-This repository include materials (processed data and code) used for the analysis in the paper "Who Set the Narrative? Assessing the Influence of Chinese Global Media on News Coverage of COVID-19 in 30 African Countries" which is forthcoming in <em><a href="https://journals.sagepub.com/home/gch" target="_blank">Global Media and China</em></a>.
+This repository includes materials (processed data and code) used for the analysis in the paper "Who Set the Narrative? Assessing the Influence of Chinese Global Media on News Coverage of COVID-19 in 30 African Countries" which was published in <em><a href="https://journals.sagepub.com/doi/full/10.1177/20594364211013714" target="_blank">Global Media and China</em></a>.
 <br>
 <br>
 <strong><em>Abstract</em></strong><br>
@@ -8,18 +8,15 @@ This repository include materials (processed data and code) used for the analysi
 <br>
 <strong>Content</strong><br>
 <p>This repository includes the following scripts:</p>
-<ul>
-  <li>GDELT.R: used to extract data (including scraping) from the Global Database of Events, Language, and Tone (GDELT) database.</li>
-  <li>GoogleNewsAPI.R: used to extract data from the NewsAPI service.</li>
-  <li>NexisParser.R: used to process content from the NexisUni database for analysis.</li>
+<ol>
+  <li>1_NewsAPI.R: used to extract data from the News API service [text data not included] </li>
+  <li>2_NexisParser.R: used to process content from the Nexis Uni database for analysis [text data not included]</li>  
+  <li>3_GDELT.R: used to extract URLs from the GDELT database and to scrape the content of news items</li>
   <li>merging_cleaning.R: used to combine, clean and pre-process data from the three sources.</li>
   <li>analysis.R: used to analyse the data and organised by research question (RQ1 to RQ4).</li>
   <li>OnlineAppendices.R: used to create the data summaries presented in the Online Appendices.</li>
-</ul>
+</ol>
 <br>
-The data files used in this study are stored in the following Dataverse:<br>
-<ul>
-  <li><a href="" target="_blank">Dataverse</a></li>
-</ul>
+The data files used in this study are available at <a href="https://doi.org/10.18738/T8/FNYGHO" target="_blank">https://doi.org/10.18738/T8/FNYGHO</a>.<br>
 <br>
 Due to copyright restrictions, the original news articles cannot be shared and, therefore, only pre-processed data (i.e., document-feature matrices) are provided in the repository.
